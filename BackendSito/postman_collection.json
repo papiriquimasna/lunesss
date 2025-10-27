@@ -1,0 +1,905 @@
+{
+	"info": {
+		"name": "API Machine Learning y Análisis de Datos",
+		"description": "Colección completa para probar la API de ML y análisis de datos con Django REST Framework",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:8000/api",
+			"type": "string"
+		},
+		{
+			"key": "access_token",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "refresh_token",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "user_id",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "dataset_id",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "model_id",
+			"value": "",
+			"type": "string"
+		}
+	],
+	"item": [
+		{
+			"name": "1. AUTENTICACIÓN",
+			"item": [
+				{
+					"name": "Registro de Usuario",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"usuario@ejemplo.com\",\n    \"first_name\": \"Juan\",\n    \"last_name\": \"Pérez\",\n    \"password\": \"contraseña123\",\n    \"password2\": \"contraseña123\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/register/",
+							"host": ["{{base_url}}"],
+							"path": ["auth", "register", ""]
+						}
+					},
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 201) {",
+									"    const response = pm.response.json();",
+									"    pm.collectionVariables.set('access_token', response.tokens.access);",
+									"    pm.collectionVariables.set('refresh_token', response.tokens.refresh);",
+									"    pm.collectionVariables.set('user_id', response.user.id);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					]
+				},
+				{
+					"name": "Iniciar Sesión",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"usuario@ejemplo.com\",\n    \"password\": \"contraseña123\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/login/",
+							"host": ["{{base_url}}"],
+							"path": ["auth", "login", ""]
+						}
+					},
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    const response = pm.response.json();",
+									"    pm.collectionVariables.set('access_token', response.tokens.access);",
+									"    pm.collectionVariables.set('refresh_token', response.tokens.refresh);",
+									"    pm.collectionVariables.set('user_id', response.user.id);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					]
+				},
+				{
+					"name": "Renovar Token",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"refresh\": \"{{refresh_token}}\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/token/refresh/",
+							"host": ["{{base_url}}"],
+							"path": ["auth", "token", "refresh", ""]
+						}
+					},
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    const response = pm.response.json();",
+									"    pm.collectionVariables.set('access_token', response.access);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					]
+				},
+				{
+					"name": "Obtener Perfil",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/auth/profile/",
+							"host": ["{{base_url}}"],
+							"path": ["auth", "profile", ""]
+						}
+					}
+				},
+				{
+					"name": "Actualizar Perfil",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"first_name\": \"Juan Carlos\",\n    \"last_name\": \"Pérez García\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/profile/",
+							"host": ["{{base_url}}"],
+							"path": ["auth", "profile", ""]
+						}
+					}
+				},
+				{
+					"name": "Subir Avatar",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "avatar",
+									"type": "file",
+									"src": []
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/profile/avatar/upload/",
+							"host": ["{{base_url}}"],
+							"path": ["auth", "profile", "avatar", "upload", ""]
+						}
+					}
+				},
+				{
+					"name": "Cerrar Sesión",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"refresh\": \"{{refresh_token}}\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/logout/",
+							"host": ["{{base_url}}"],
+							"path": ["auth", "logout", ""]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "2. DATASETS",
+			"item": [
+				{
+					"name": "Listar Datasets",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/data/datasets/",
+							"host": ["{{base_url}}"],
+							"path": ["data", "datasets", ""]
+						}
+					}
+				},
+				{
+					"name": "Subir Dataset",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "name",
+									"value": "Ventas 2024",
+									"type": "text"
+								},
+								{
+									"key": "description",
+									"value": "Dataset de ventas del año 2024 con información detallada",
+									"type": "text"
+								},
+								{
+									"key": "file",
+									"type": "file",
+									"src": []
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/data/datasets/",
+							"host": ["{{base_url}}"],
+							"path": ["data", "datasets", ""]
+						}
+					},
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 201) {",
+									"    const response = pm.response.json();",
+									"    pm.collectionVariables.set('dataset_id', response.id);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					]
+				},
+				{
+					"name": "Obtener Dataset",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/data/datasets/{{dataset_id}}/",
+							"host": ["{{base_url}}"],
+							"path": ["data", "datasets", "{{dataset_id}}", ""]
+						}
+					}
+				},
+				{
+					"name": "Vista Previa Dataset",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/data/datasets/{{dataset_id}}/preview/",
+							"host": ["{{base_url}}"],
+							"path": ["data", "datasets", "{{dataset_id}}", "preview", ""]
+						}
+					}
+				},
+				{
+					"name": "Estadísticas Dataset",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/data/datasets/{{dataset_id}}/stats/",
+							"host": ["{{base_url}}"],
+							"path": ["data", "datasets", "{{dataset_id}}", "stats", ""]
+						}
+					}
+				},
+				{
+					"name": "Limpiar Dataset - Rellenar con Media",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"null_strategy\": \"fill_mean\",\n    \"target_columns\": [],\n    \"remove_duplicates\": true,\n    \"remove_outliers\": false,\n    \"outlier_method\": \"iqr\",\n    \"normalize_data\": false,\n    \"standardize_data\": false,\n    \"remove_empty_rows\": true,\n    \"remove_empty_columns\": true,\n    \"convert_data_types\": true,\n    \"trim_whitespace\": true\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/data/datasets/{{dataset_id}}/clean/",
+							"host": ["{{base_url}}"],
+							"path": ["data", "datasets", "{{dataset_id}}", "clean", ""]
+						}
+					}
+				},
+				{
+					"name": "Limpiar Dataset - Eliminar Outliers",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"null_strategy\": \"fill_median\",\n    \"target_columns\": [],\n    \"remove_duplicates\": true,\n    \"remove_outliers\": true,\n    \"outlier_method\": \"iqr\",\n    \"normalize_data\": false,\n    \"standardize_data\": true,\n    \"numeric_columns\": [],\n    \"remove_empty_rows\": true,\n    \"remove_empty_columns\": true,\n    \"convert_data_types\": true,\n    \"trim_whitespace\": true\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/data/datasets/{{dataset_id}}/clean/",
+							"host": ["{{base_url}}"],
+							"path": ["data", "datasets", "{{dataset_id}}", "clean", ""]
+						}
+					}
+				},
+				{
+					"name": "Descargar Dataset",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/data/datasets/{{dataset_id}}/download/",
+							"host": ["{{base_url}}"],
+							"path": ["data", "datasets", "{{dataset_id}}", "download", ""]
+						}
+					}
+				},
+				{
+					"name": "Listar Datasets Limpios",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/data/cleaned-datasets/",
+							"host": ["{{base_url}}"],
+							"path": ["data", "cleaned-datasets", ""]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "3. MACHINE LEARNING",
+			"item": [
+				{
+					"name": "Información Dataset para ML",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/ml/models/dataset_info/?dataset_type=original&dataset_id={{dataset_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["ml", "models", "dataset_info", ""],
+							"query": [
+								{
+									"key": "dataset_type",
+									"value": "original"
+								},
+								{
+									"key": "dataset_id",
+									"value": "{{dataset_id}}"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Entrenar Modelo - Random Forest Regresión",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"dataset_type\": \"original\",\n    \"dataset_id\": {{dataset_id}},\n    \"algorithm\": \"random_forest\",\n    \"task_type\": \"regression\",\n    \"target_column\": \"ventas\",\n    \"feature_columns\": [\"cantidad\", \"precio_unitario\"],\n    \"test_size\": 0.2,\n    \"validation_size\": 0.2,\n    \"random_state\": 42,\n    \"hyperparameters\": {\n        \"n_estimators\": 100,\n        \"max_depth\": 10,\n        \"min_samples_split\": 2\n    }\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/ml/models/train/",
+							"host": ["{{base_url}}"],
+							"path": ["ml", "models", "train", ""]
+						}
+					},
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 201) {",
+									"    const response = pm.response.json();",
+									"    pm.collectionVariables.set('model_id', response.model.id);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					]
+				},
+				{
+					"name": "Entrenar Modelo - XGBoost Clasificación",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"dataset_type\": \"original\",\n    \"dataset_id\": {{dataset_id}},\n    \"algorithm\": \"gradient_boosting\",\n    \"task_type\": \"classification\",\n    \"target_column\": \"categoria\",\n    \"feature_columns\": [\"precio\", \"descuento\", \"mes\"],\n    \"test_size\": 0.2,\n    \"validation_size\": 0.2,\n    \"random_state\": 42,\n    \"hyperparameters\": {\n        \"n_estimators\": 150,\n        \"max_depth\": 6,\n        \"learning_rate\": 0.1\n    }\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/ml/models/train/",
+							"host": ["{{base_url}}"],
+							"path": ["ml", "models", "train", ""]
+						}
+					}
+				},
+				{
+					"name": "Entrenar Modelo - Neural Network",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"dataset_type\": \"original\",\n    \"dataset_id\": {{dataset_id}},\n    \"algorithm\": \"neural_network\",\n    \"task_type\": \"regression\",\n    \"target_column\": \"ventas\",\n    \"feature_columns\": [\"cantidad\", \"precio_unitario\", \"mes\"],\n    \"test_size\": 0.2,\n    \"validation_size\": 0.2,\n    \"random_state\": 42,\n    \"hyperparameters\": {\n        \"hidden_size\": 64,\n        \"learning_rate\": 0.001,\n        \"epochs\": 50,\n        \"batch_size\": 32\n    }\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/ml/models/train/",
+							"host": ["{{base_url}}"],
+							"path": ["ml", "models", "train", ""]
+						}
+					}
+				},
+				{
+					"name": "Listar Modelos",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/ml/models/",
+							"host": ["{{base_url}}"],
+							"path": ["ml", "models", ""]
+						}
+					}
+				},
+				{
+					"name": "Obtener Modelo",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/ml/models/{{model_id}}/",
+							"host": ["{{base_url}}"],
+							"path": ["ml", "models", "{{model_id}}", ""]
+						}
+					}
+				},
+				{
+					"name": "Métricas del Modelo",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/ml/models/{{model_id}}/metrics/",
+							"host": ["{{base_url}}"],
+							"path": ["ml", "models", "{{model_id}}", "metrics", ""]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "4. PREDICCIONES",
+			"item": [
+				{
+					"name": "Predicción Individual",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"model_id\": {{model_id}},\n    \"input_data\": {\n        \"cantidad\": 2,\n        \"precio_unitario\": 1200.00\n    }\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/ml/predictions/predict/",
+							"host": ["{{base_url}}"],
+							"path": ["ml", "predictions", "predict", ""]
+						}
+					}
+				},
+				{
+					"name": "Predicciones en Lote",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"model_id\": {{model_id}},\n    \"input_data_list\": [\n        {\n            \"cantidad\": 1,\n            \"precio_unitario\": 800.00\n        },\n        {\n            \"cantidad\": 3,\n            \"precio_unitario\": 1500.00\n        },\n        {\n            \"cantidad\": 2,\n            \"precio_unitario\": 1200.00\n        }\n    ]\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/ml/predictions/batch_predict/",
+							"host": ["{{base_url}}"],
+							"path": ["ml", "predictions", "batch_predict", ""]
+						}
+					}
+				},
+				{
+					"name": "Listar Predicciones",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/ml/predictions/",
+							"host": ["{{base_url}}"],
+							"path": ["ml", "predictions", ""]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "5. PREDICCIONES DE NEGOCIO",
+			"item": [
+				{
+					"name": "Predicción de Ganancias Futuras",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"ventas_historicas\": [15000, 18000, 16500, 19200, 17800, 20500],\n    \"costos_promedio\": 0.6,\n    \"tendencia\": \"creciente\",\n    \"estacionalidad\": 1.2,\n    \"promociones_planeadas\": 2\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/ml/business-predictions/revenue_forecast/",
+							"host": ["{{base_url}}"],
+							"path": ["ml", "business-predictions", "revenue_forecast", ""]
+						}
+					}
+				},
+				{
+					"name": "Impacto de Promociones",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"venta_base_semanal\": 10000,\n    \"descuento\": 0.20,\n    \"duracion_dias\": 7,\n    \"categoria\": \"electronica\",\n    \"costos_promedio\": 0.6\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/ml/business-predictions/promotion_impact/",
+							"host": ["{{base_url}}"],
+							"path": ["ml", "business-predictions", "promotion_impact", ""]
+						}
+					}
+				},
+				{
+					"name": "Tendencias Estacionales",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"mes_actual\": 10,\n    \"ventas_mensuales\": [45000, 48000, 52000, 47000, 50000, 55000],\n    \"tipo_negocio\": \"retail\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/ml/business-predictions/seasonal_trends/",
+							"host": ["{{base_url}}"],
+							"path": ["ml", "business-predictions", "seasonal_trends", ""]
+						}
+					}
+				},
+				{
+					"name": "Escenarios de Crecimiento",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"ganancia_actual_mensual\": 20000,\n    \"inversion_marketing\": 5000,\n    \"nuevos_productos\": 3,\n    \"expansion_mercado\": true\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/ml/business-predictions/growth_scenarios/",
+							"host": ["{{base_url}}"],
+							"path": ["ml", "business-predictions", "growth_scenarios", ""]
+						}
+					}
+				},
+				{
+					"name": "Predicción Rápida",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"ganancia_semanal_actual\": 5000,\n    \"dias_prediccion\": 30,\n    \"factor_crecimiento\": 1.1\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/ml/business-predictions/quick_forecast/",
+							"host": ["{{base_url}}"],
+							"path": ["ml", "business-predictions", "quick_forecast", ""]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "6. COMPARACIÓN DE MODELOS",
+			"item": [
+				{
+					"name": "Crear Comparación",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Comparación Modelos Ventas\",\n    \"description\": \"Comparación entre Random Forest y XGBoost para predicción de ventas\",\n    \"models_to_compare\": [1, 2]\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/ml/comparisons/",
+							"host": ["{{base_url}}"],
+							"path": ["ml", "comparisons", ""]
+						}
+					}
+				},
+				{
+					"name": "Listar Comparaciones",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/ml/comparisons/",
+							"host": ["{{base_url}}"],
+							"path": ["ml", "comparisons", ""]
+						}
+					}
+				},
+				{
+					"name": "Ejecutar Comparación",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/ml/comparisons/1/compare/",
+							"host": ["{{base_url}}"],
+							"path": ["ml", "comparisons", "1", "compare", ""]
+						}
+					}
+				}
+			]
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{access_token}}",
+				"type": "string"
+			}
+		]
+	}
+}
