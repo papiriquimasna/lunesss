@@ -104,6 +104,11 @@ export default function UploadPage() {
       setDataPreview(null);
       setSelectedFile(null);
       alert('¡Dataset subido exitosamente!');
+      
+      // Disparar evento para actualizar dashboard
+      window.dispatchEvent(new CustomEvent('dashboardUpdate', { 
+        detail: { type: 'upload', fileName: dataPreview.fileName } 
+      }));
     } catch (err: any) {
       setUploadError(err.response?.data?.message || 'Error al subir el dataset');
     } finally {

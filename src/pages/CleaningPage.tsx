@@ -73,6 +73,8 @@ interface PreviewData {
   total_rows: number;
 }
 
+
+
 export default function CleaningPage() {
   const [datasets, setDatasets] = useState<Dataset[]>([]);
   const [selectedDataset, setSelectedDataset] = useState<Dataset | null>(null);
@@ -84,6 +86,9 @@ export default function CleaningPage() {
   const [originalPreview, setOriginalPreview] = useState<PreviewData | null>(null);
   const [cleanedPreview, setCleanedPreview] = useState<PreviewData | null>(null);
   const [loadingPreviews, setLoadingPreviews] = useState(false);
+
+  // Número fijo de filas a mostrar (primera página solamente)
+  const [rowsPerPage] = useState(10);
 
   const [config, setConfig] = useState<CleaningConfig>({
     null_strategy: 'fill_median',
@@ -159,6 +164,11 @@ export default function CleaningPage() {
       await loadPreviews(selectedDataset.id, data.cleaned_dataset.id);
       setStep(3);
       await loadDatasets();
+      
+      // Disparar evento para actualizar dashboard
+      window.dispatchEvent(new CustomEvent('dashboardUpdate', { 
+        detail: { type: 'cleaning', datasetId: selectedDataset.id } 
+      }));
     } catch (err: any) {
       setError(err.response?.data?.error || 'Error al limpiar el dataset');
     } finally {
@@ -183,6 +193,17 @@ export default function CleaningPage() {
       convert_data_types: true,
       trim_whitespace: true,
     });
+  };
+
+  // Funciones para mostrar solo la primera página de datos
+  const getFirstPageOriginalData = () => {
+    if (!originalPreview?.data) return [];
+    return originalPreview.data.slice(0, rowsPerPage);
+  };
+
+  const getFirstPageCleanedData = () => {
+    if (!cleanedPreview?.data) return [];
+    return cleanedPreview.data.slice(0, rowsPerPage);
   };
 
   if (loading) {
@@ -574,7 +595,7 @@ export default function CleaningPage() {
                           </tr>
                         </thead>
                         <tbody>
-                          {originalPreview.data.slice(0, 10).map((row, rowIdx) => (
+                          {getFirstPageOriginalData().map((row, rowIdx) => (
                             <tr key={rowIdx} className="hover:bg-accent/50 transition-colors">
                               {originalPreview.columns.slice(0, 6).map((col, colIdx) => {
                                 const value = row[col];
@@ -602,11 +623,9 @@ export default function CleaningPage() {
                     </div>
                   )}
                 </div>
-                {originalPreview && (
-                  <div className="border-t p-2 bg-accent/20">
-                    <p className="text-xs text-muted-foreground text-center">
-                      Mostrando {Math.min(10, originalPreview.data.length)} de {originalPreview.total_rows.toLocaleString()} filas
-                    </p>
+                {originalPreview && originalPreview.data.length > rowsPerPage && (
+                  <div className="px-3 py-2 bg-accent/20 border-t text-xs text-muted-foreground text-center">
+                    Mostrando las primeras {Math.min(rowsPerPage, originalPreview.data.length)} de {originalPreview.data.length} filas
                   </div>
                 )}
               </div>
@@ -655,11 +674,12 @@ export default function CleaningPage() {
                           </tr>
                         </thead>
                         <tbody>
-                          {cleanedPreview.data.slice(0, 10).map((row, rowIdx) => (
+                          {getFirstPageCleanedData().map((row, rowIdx) => (
                             <tr key={rowIdx} className="hover:bg-accent/50 transition-colors">
                               {cleanedPreview.columns.slice(0, 6).map((col, colIdx) => {
                                 // Verificar si el valor fue rellenado (era NULL antes y ahora tiene valor)
-                                const originalValue = originalPreview?.data[rowIdx]?.[col];
+                                const originalRowData = originalPreview?.data[rowIdx];
+                                const originalValue = originalRowData?.[col];
                                 const cleanedValue = row[col];
                                 const wasNull = originalValue === null || originalValue === undefined || originalValue === '';
                                 const nowHasValue = cleanedValue !== null && cleanedValue !== undefined && cleanedValue !== '';
@@ -688,11 +708,9 @@ export default function CleaningPage() {
                     </div>
                   )}
                 </div>
-                {cleanedPreview && (
-                  <div className="border-t p-2 bg-accent/20">
-                    <p className="text-xs text-muted-foreground text-center">
-                      Mostrando {Math.min(10, cleanedPreview.data.length)} de {cleanedPreview.total_rows.toLocaleString()} filas
-                    </p>
+                {cleanedPreview && cleanedPreview.data.length > rowsPerPage && (
+                  <div className="px-3 py-2 bg-accent/20 border-t text-xs text-muted-foreground text-center">
+                    Mostrando las primeras {Math.min(rowsPerPage, cleanedPreview.data.length)} de {cleanedPreview.data.length} filas
                   </div>
                 )}
               </div>

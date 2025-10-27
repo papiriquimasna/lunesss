@@ -170,12 +170,19 @@ export default function TrainingPage() {
       console.log('Training result:', data); // Debug
       setTrainingResult(data);
       setStep(3);
+      
+      // Disparar evento para actualizar dashboard
+      window.dispatchEvent(new CustomEvent('dashboardUpdate', { 
+        detail: { type: 'training', modelData: data } 
+      }));
     } catch (err: any) {
       setError(err.response?.data?.error || 'Error al entrenar el modelo');
     } finally {
       setTraining(false);
     }
   };
+
+
 
   const handleReset = () => {
     setSelectedDataset(null);
