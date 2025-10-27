@@ -1,45 +1,55 @@
-# ⚡ Despliegue Rápido - Comandos
+# ⚡ Despliegue Rápido - 5 Pasos
 
-## 🔥 **PASO A PASO RÁPIDO**
-
-### 1. Subir a GitHub
-```bash
-git add .
-git commit -m "Ready for production"
-git push origin main
+## 🚀 **ESTRUCTURA DEL PROYECTO**
+```
+📁 Repositorio: https://github.com/papiriquimasna/lunesss
+├── 📁 frontend/     ← React App (Vercel)
+└── 📁 BackendSito/  ← Django API (Render)
 ```
 
-### 2. Backend en Render
+## 🔥 **PASO A PASO (10 MINUTOS)**
+
+### 1️⃣ Backend en Render
 ```
-1. render.com → New Web Service
-2. Conectar GitHub repo
-3. Root Directory: BackendSito
-4. Build: ./build.sh
-5. Start: gunicorn core.wsgi:application
-6. Variables: DEBUG=False, SECRET_KEY=random-key
-7. Deploy
+🌐 render.com → New Web Service
+📂 Repo: https://github.com/papiriquimasna/lunesss
+📁 Root Directory: BackendSito
+🔨 Build: ./build.sh
+▶️ Start: gunicorn core.wsgi:application
+🔑 Variables: DEBUG=False, SECRET_KEY=clave-secreta
 ```
 
-### 3. Frontend en Vercel
+### 2️⃣ Frontend en Vercel
 ```
-1. vercel.com → New Project
-2. Import GitHub repo
-3. Framework: Vite
-4. Variables: VITE_API_BASE_URL=https://tu-backend.onrender.com
-5. Deploy
+🌐 vercel.com → New Project
+📂 Repo: https://github.com/papiriquimasna/lunesss
+📁 Root Directory: frontend
+⚡ Framework: Vite
+🔑 Variables: VITE_API_BASE_URL=https://tu-backend.onrender.com
 ```
 
-### 4. Configurar CORS
+### 3️⃣ Configurar CORS
 ```python
-# En BackendSito/core/settings.py
+# BackendSito/core/settings.py línea ~75
 CORS_ALLOWED_ORIGINS = [
-    "https://tu-frontend.vercel.app"
+    "https://tu-frontend.vercel.app"  # ← Tu URL de Vercel
 ]
 ```
 
-### 5. Redeploy Backend
+### 4️⃣ Redeploy Backend
 ```
-Render Dashboard → Manual Deploy
+Render Dashboard → Manual Deploy → Deploy latest commit
 ```
 
-## ✅ **Listo en 10 minutos!**
+### 5️⃣ Probar
+```
+✅ Frontend: https://tu-frontend.vercel.app
+✅ Backend: https://tu-backend.onrender.com/admin/
+✅ Funcionalidad: Registro → Login → Upload → Predicciones
+```
+
+## 🎯 **URLs que necesitas cambiar:**
+1. **Vercel URL** → Actualizar CORS en Django
+2. **Render URL** → Configurar en variables de Vercel
+
+## ✅ **¡Listo en 10 minutos!** 🚀
